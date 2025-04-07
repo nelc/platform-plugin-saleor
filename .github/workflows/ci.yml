@@ -35,9 +35,11 @@ jobs:
         run: tox
 
       - name: Run coverage
-        if: matrix.python-version == '3.12' && matrix.toxenv == 'django42'
-        uses: codecov/codecov-action@v4
+        if: matrix.python-version == '3.1' && matrix.toxenv == 'django42'
+        uses: py-cov-action/python-coverage-comment-action@v3
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: unittests
-          fail_ci_if_error: true
+          GITHUB_TOKEN: ${{ github.token }}
+          MINIMUM_GREEN: 90
+          MINIMUM_ORANGE: 85
+          ANNOTATE_MISSING_LINES: true
+          ANNOTATION_TYPE: error

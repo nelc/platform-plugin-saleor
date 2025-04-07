@@ -8,9 +8,6 @@ platform-plugin-saleor
   "PLACEHOLDER" or "TODO". Update or remove those sections, and remove this
   note when you are done.
 
-|pypi-badge| |ci-badge| |codecov-badge| |doc-badge| |pyversions-badge|
-|license-badge| |status-badge|
-
 Purpose
 *******
 
@@ -113,33 +110,3 @@ Reporting Security Issues
 *************************
 
 Please do not report security issues in public. Please email security@openedx.org.
-
-.. |pypi-badge| image:: https://img.shields.io/pypi/v/platform-plugin-saleor.svg
-    :target: https://pypi.python.org/pypi/platform-plugin-saleor/
-    :alt: PyPI
-
-.. |ci-badge| image:: https://github.com/nelc/platform-plugin-saleor/actions/workflows/ci.yml/badge.svg?branch=main
-    :target: https://github.com/nelc/platform-plugin-saleor/actions/workflows/ci.yml
-    :alt: CI
-
-.. |codecov-badge| image:: https://codecov.io/github/nelc/platform-plugin-saleor/coverage.svg?branch=main
-    :target: https://codecov.io/github/nelc/platform-plugin-saleor?branch=main
-    :alt: Codecov
-
-.. |doc-badge| image:: https://readthedocs.org/projects/platform-plugin-saleor/badge/?version=latest
-    :target: https://docs.openedx.org/projects/platform-plugin-saleor
-    :alt: Documentation
-
-.. |pyversions-badge| image:: https://img.shields.io/pypi/pyversions/platform-plugin-saleor.svg
-    :target: https://pypi.python.org/pypi/platform-plugin-saleor/
-    :alt: Supported Python versions
-
-.. |license-badge| image:: https://img.shields.io/github/license/nelc/platform-plugin-saleor.svg
-    :target: https://github.com/nelc/platform-plugin-saleor/blob/main/LICENSE.txt
-    :alt: License
-
-.. TODO: Choose one of the statuses below and remove the other status-badge lines.
-.. |status-badge| image:: https://img.shields.io/badge/Status-Experimental-yellow
-.. .. |status-badge| image:: https://img.shields.io/badge/Status-Maintained-brightgreen
-.. .. |status-badge| image:: https://img.shields.io/badge/Status-Deprecated-orange
-.. .. |status-badge| image:: https://img.shields.io/badge/Status-Unsupported-red

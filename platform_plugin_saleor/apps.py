@@ -3,7 +3,8 @@ platform_plugin_saleor Django application initialization.
 """
 
 from django.apps import AppConfig
-from edx_django_utils.plugins import PluginSettings, PluginSignals, PluginURLs
+from edx_django_utils.plugins import PluginSettings, PluginURLs
+
 
 class PlatformPluginSaleorConfig(AppConfig):
     """
