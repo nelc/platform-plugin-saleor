@@ -5,7 +5,7 @@ from subprocess import CalledProcessError, check_output
 
 from django.http import JsonResponse
 
-import platform_plugin_saleor
+from platform_plugin_saleor import __version__ as plugin_version
 
 
 def info_view(request):
@@ -20,9 +20,11 @@ def info_view(request):
         git_data = git_data.decode().rstrip('\r\n')
     except CalledProcessError:
         git_data = ""
+
     response_data = {
-        "version": platform_plugin_saleor.__version__,
+        "version": plugin_version,
         "name": "platform-plugin-saleor",
-        "git": git_data
+        "git": git_data,
     }
+
     return JsonResponse(response_data)
