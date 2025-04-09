@@ -20,9 +20,18 @@ class PlatformPluginSaleorConfig(AppConfig):
                 PluginURLs.REGEX: r"^saleor/",
                 PluginURLs.RELATIVE_PATH: "urls",
             },
+            "cms.djangoapp": {
+                PluginURLs.NAMESPACE: "",
+                PluginURLs.REGEX: r"^saleor/",
+                PluginURLs.RELATIVE_PATH: "urls",
+            },
         },
         PluginSettings.CONFIG: {
             "lms.djangoapp": {
+                "production": {PluginSettings.RELATIVE_PATH: "settings.production"},
+                "common": {PluginSettings.RELATIVE_PATH: "settings.common"},
+            },
+            "cms.djangoapp": {
                 "production": {PluginSettings.RELATIVE_PATH: "settings.production"},
                 "common": {PluginSettings.RELATIVE_PATH: "settings.common"},
             },

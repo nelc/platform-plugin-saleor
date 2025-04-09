@@ -161,5 +161,8 @@ setup(
         "lms.djangoapp": [
             "platform_plugin_saleor = platform_plugin_saleor.apps:PlatformPluginSaleorConfig",
         ],
+        "cms.djangoapp": [
+            "platform_plugin_saleor = platform_plugin_saleor.apps:PlatformPluginSaleorConfig",
+        ],
     },
 )
