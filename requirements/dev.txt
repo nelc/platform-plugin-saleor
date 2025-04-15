@@ -4,6 +4,10 @@
 #
 #    pip-compile --output-file=requirements/dev.txt requirements/dev.in
 #
+anyio==4.9.0
+    # via
+    #   -r requirements/quality.txt
+    #   gql
 asgiref==3.8.1
     # via
     #   -r requirements/quality.txt
@@ -13,6 +17,10 @@ astroid==3.3.9
     #   -r requirements/quality.txt
     #   pylint
     #   pylint-celery
+backoff==2.2.1
+    # via
+    #   -r requirements/quality.txt
+    #   gql
 build==1.2.2.post1
     # via
     #   -r requirements/pip-tools.txt
@@ -92,6 +100,17 @@ filelock==3.18.0
     #   -r requirements/ci.txt
     #   tox
     #   virtualenv
+gql==3.5.2
+    # via -r requirements/quality.txt
+graphql-core==3.2.4
+    # via
+    #   -r requirements/quality.txt
+    #   gql
+idna==3.10
+    # via
+    #   -r requirements/quality.txt
+    #   anyio
+    #   yarl
 iniconfig==2.1.0
     # via
     #   -r requirements/quality.txt
@@ -119,6 +138,10 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
+multidict==6.4.2
+    # via
+    #   -r requirements/quality.txt
+    #   yarl
 newrelic==10.8.1
     # via
     #   -r requirements/quality.txt
@@ -158,6 +181,10 @@ pluggy==1.5.0
     #   tox
 polib==1.2.0
     # via edx-i18n-tools
+propcache==0.3.1
+    # via
+    #   -r requirements/quality.txt
+    #   yarl
 psutil==7.0.0
     # via
     #   -r requirements/quality.txt
@@ -227,6 +254,10 @@ six==1.17.0
     # via
     #   -r requirements/quality.txt
     #   edx-lint
+sniffio==1.3.1
+    # via
+    #   -r requirements/quality.txt
+    #   anyio
 snowballstemmer==2.2.0
     # via
     #   -r requirements/quality.txt
@@ -250,6 +281,10 @@ tomlkit==0.13.2
     #   pylint
 tox==4.25.0
     # via -r requirements/ci.txt
+typing-extensions==4.13.1
+    # via
+    #   -r requirements/quality.txt
+    #   anyio
 virtualenv==20.30.0
     # via
     #   -r requirements/ci.txt
@@ -258,6 +293,10 @@ wheel==0.45.1
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
+yarl==1.19.0
+    # via
+    #   -r requirements/quality.txt
+    #   gql
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
