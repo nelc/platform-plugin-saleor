@@ -1,14 +1,10 @@
 """Django management command to synchronize courses from Open edX to Saleor e-commerce platform."""
 
 
-import logging
-
 from django.core.management.base import BaseCommand
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview  # pylint: disable=import-error
 
 from platform_plugin_saleor.saleor_client.client import SaleorApiClient
-
-logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
