@@ -1,22 +1,25 @@
 """Queries for Saleor GraphQL API."""
 
+GET_PRODUCT_ATTRIBUTES = """
+query getAttributes(
+    $limit: Int
+) {
+    attributes(first: $limit) {
+        edges {
+            node { id, name }
+        }
+    }
+}
+"""
 
-def get_attributes_ids_query(limit: int) -> str:
-    """
-    Get the IDs of all attributes in Saleor.
-
-    Args:
-        limit: Maximum number of attributes to retrieve
-
-    Returns:
-        str: GraphQL query string for retrieving attribute IDs
-    """
-    return f"""
-    query getAllAttributes {{
-        attributes(first: {limit}) {{
-            edges {{
-                node {{ id, name }}
-            }}
-        }}
-    }}
-    """
+GET_PRODUCT_TYPES = """
+query getProductTypes(
+    $limit: Int
+) {
+    productTypes(first: $limit) {
+        edges {
+            node { id, name }
+        }
+  }
+}
+"""

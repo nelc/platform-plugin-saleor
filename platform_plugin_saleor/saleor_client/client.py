@@ -6,15 +6,9 @@ import logging
 from django.conf import settings
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
-from openedx.core.djangoapps.content.course_overviews.models import CourseOverview  # pylint: disable=import-error
 
-from platform_plugin_saleor.saleor_client.mutations import (
-    create_course_product_mutation,
-    create_product_attributes_mutation,
-    create_product_type_mutation,
-)
-from platform_plugin_saleor.saleor_client.queries import get_attributes_ids_query
-from platform_plugin_saleor.saleor_client.utils import COURSE_ATTRIBUTES_DICT, clean_edges_and_nodes
+from platform_plugin_saleor.saleor_client.exceptions import GraphQLError
+from platform_plugin_saleor.saleor_client.utils import find_errors
 
 logger = logging.getLogger(__name__)
 
@@ -22,13 +16,14 @@ logger = logging.getLogger(__name__)
 class SaleorApiClient:
     """Client for interacting with the Saleor GraphQL API."""
 
-    def __init__(self, base_url: str = None, token: str = None):
+    def __init__(self, base_url: str = None, token: str = None, timeout: int = None):
         """
         Initialize the Saleor API client.
 
         Args:
             base_url: Saleor API URL, defaults to settings.SALEOR_API_URL
             token: Saleor API token, defaults to settings.SALEOR_API_TOKEN
+            timeout: Request timeout in seconds.
         """
         self.base_url = base_url or settings.SALEOR_API_URL
         self.token = token or settings.SALEOR_API_TOKEN
@@ -37,6 +32,7 @@ class SaleorApiClient:
             transport = AIOHTTPTransport(
                 url=self.base_url,
                 headers={"Authorization": f"Bearer {self.token}"},
+                timeout=timeout,
             )
             self.client = Client(
                 transport=transport,
@@ -46,84 +42,29 @@ class SaleorApiClient:
             logger.error(f"Failed to initialize Saleor API client: {str(e)}")
             raise
 
-    def create_base_product_attributes(self) -> dict:
+    def execute(self, query: str, variables: dict):
         """
-        Create course product attributes in Saleor.
-
-        Returns:
-            dict: Response from Saleor API
-        """
-        try:
-            query = create_product_attributes_mutation(COURSE_ATTRIBUTES_DICT)
-            response = self.client.execute(gql(query))
-            return response
-        except Exception as e:
-            logger.error(f"Failed to create course product attributes: {str(e)}")
-            raise
-
-    def get_base_product_attributes_ids(self, limit: int = 50) -> list[dict]:
-        """
-        Get attribute IDs from Saleor.
+        Execute a GraphQL query.
 
         Args:
-            limit: Maximum number of attributes to retrieve
+            query: The GraphQL query string.
+            variables: A dictionary of variables for the query.
 
         Returns:
-            list: List of attribute objects with id and name
+            The response data from the GraphQL API.
+
+        Raises:
+            GraphQLError: If the API returns errors.
         """
-        try:
-            query = get_attributes_ids_query(limit)
-            response = self.client.execute(gql(query))
+        response_data = self.client.execute(
+            gql(query),
+            variable_values=variables,
+        )
 
-            attributes = response.get("attributes", {})
-            return clean_edges_and_nodes(attributes)
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.error(f"Failed to get attribute IDs: {str(e)}")
-            return []
+        if errors := find_errors(response_data):
+            raise GraphQLError(
+                errors=errors,
+                response_data=response_data,
+            )
 
-    def create_course_product_type(self, name: str = "Course") -> dict:
-        """
-        Create a course product type in Saleor.
-
-        Args:
-            name: Name of the product type
-
-        Returns:
-            dict: Product type data
-        """
-        try:
-            attributes = self.get_base_product_attributes_ids()
-            if not attributes:
-                logger.warning("No attributes found to create product type")
-                return {}
-
-            attribute_ids = [attribute['id'] for attribute in attributes]
-            query = create_product_type_mutation(name, attribute_ids)
-            response = self.client.execute(gql(query))
-
-            return response.get("productTypeCreate", {}).get("productType", {})
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.error(f"Failed to create course product type: {str(e)}")
-            return {}
-
-    def create_course_product(self,
-                              course: CourseOverview,
-                              product_type: str) -> dict:
-        """
-        Create a course product in Saleor.
-
-        Args:
-            course: Course to create a product for
-            product_type: ID of the product type to use
-
-        Returns:
-            dict: Response from product creation
-        """
-        try:
-            query = create_course_product_mutation(course, product_type)
-            response = self.client.execute(gql(query))
-            logger.info(f"Created product for course {course.id}")
-            return response
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            logger.error(f"Failed to create course product: {str(e)}")
-            return {}
+        return response_data

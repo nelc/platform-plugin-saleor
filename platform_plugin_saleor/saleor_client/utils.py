@@ -1,24 +1,64 @@
 """Utility functions for Saleor GraphQL client."""
 
+ATTRIBUTE_TYPES_MAP = {
+    'TextField': 'PLAIN_TEXT',
+    'CharField': 'PLAIN_TEXT',
+    'DateField': 'DATE',
+    'DateTimeField': 'DATE_TIME',
+    'BooleanField': 'BOOLEAN',
+    'IntegerField': 'NUMERIC',
+    'DecimalField': 'NUMERIC',
+    'FloatField': 'NUMERIC',
+}
 
-def format_course_attribute_to_string(attribute: dict) -> str:
+
+def generate_saleor_product_attribute_data(
+    model_cls, model_field: str, product_attrb_name: str
+) -> dict:
     """
-    Format a course attribute dictionary into a GraphQL string.
+    Generate the data structure for a Saleor product attribute based on a model field.
 
     Args:
-        attribute: Dictionary containing attribute details
+        model_cls: The Django model class.
+        model_field: The name of the field in the model.
+        product_attrb_name: The desired name for the Saleor product attribute.
 
     Returns:
-        str: Formatted GraphQL attribute string
+        dict: A dictionary representing the Saleor attribute data.
     """
-    return f"""
-    {{
-        name: "{attribute["name"]}",
-        externalReference: "{attribute["model_reference"]}",
-        type: {attribute["type"]},
-        inputType: {attribute["input_type"]}
-    }}
+    model_field_type = get_model_field_type(model_cls, model_field)
+    input_type = ATTRIBUTE_TYPES_MAP.get(model_field_type, "PLAIN_TEXT")
+
+    return {
+        'name': product_attrb_name,
+        'externalReference': model_field,
+        'type': 'PRODUCT_TYPE',
+        'inputType': input_type,
+    }
+
+
+def get_model_field_type(model_cls, field_name: str) -> str:
     """
+    Get the internal type name of a field in a Django model.
+
+    Args:
+        model_cls: The Django model class.
+        field_name: The name of the field.
+
+    Returns:
+        str: The internal type name of the field (e.g., 'CharField', 'DateTimeField').
+
+    Raises:
+        ValueError: If the field does not exist in the model.
+    """
+    try:
+        field = model_cls._meta.get_field(field_name)
+        return field.get_internal_type()
+
+    except AttributeError as exc:
+        raise ValueError(
+            f"Field '{field_name}' does not exist in model '{model_cls.__name__}'."
+        ) from exc
 
 
 def clean_edges_and_nodes(response: dict) -> list[dict]:
@@ -57,107 +97,112 @@ def convert_to_camel_case(snake_str: str) -> str:
     return components[0] + "".join(x.title() for x in components[1:])
 
 
-COURSE_ATTRIBUTES_DICT: list[dict] = [
-    {
-        "name": "Course ID",
-        "model_reference": "id",
-        "type": "PRODUCT_TYPE",
-        "input_type": "PLAIN_TEXT",
-    },
-    {
-        "name": "Banner Image URL",
-        "model_reference": "banner_image_url",
-        "type": "PRODUCT_TYPE",
-        "input_type": "PLAIN_TEXT",
-    },
-    {
-        "name": "Course Image URL",
-        "model_reference": "course_image_url",
-        "type": "PRODUCT_TYPE",
-        "input_type": "PLAIN_TEXT",
-    },
-    {
-        "name": "Course Start Date",
-        "model_reference": "start",
-        "type": "PRODUCT_TYPE",
-        "input_type": "DATE_TIME",
-    },
-    {
-        "name": "Course End Date",
-        "model_reference": "end",
-        "type": "PRODUCT_TYPE",
-        "input_type": "DATE_TIME",
-    },
-    {
-        "name": "Enrollment Start Date",
-        "model_reference": "enrollment_start",
-        "type": "PRODUCT_TYPE",
-        "input_type": "DATE_TIME",
-    },
-    {
-        "name": "Enrollment End Date",
-        "model_reference": "enrollment_end",
-        "type": "PRODUCT_TYPE",
-        "input_type": "DATE_TIME",
-    },
-    {
-        "name": "Self Paced",
-        "model_reference": "self_paced",
-        "type": "PRODUCT_TYPE",
-        "input_type": "BOOLEAN",
-    },
-    {
-        "name": "Mobile Available",
-        "model_reference": "mobile_available",
-        "type": "PRODUCT_TYPE",
-        "input_type": "BOOLEAN",
-    },
-    {
-        "name": "Certificate Name",
-        "model_reference": "cert_name_long",
-        "type": "PRODUCT_TYPE",
-        "input_type": "PLAIN_TEXT",
-    },
-    {
-        "name": "Lowest Passing Grade",
-        "model_reference": "lowest_passing_grade",
-        "type": "PRODUCT_TYPE",
-        "input_type": "PLAIN_TEXT",
-    },
-    {
-        "name": "Invitation Only",
-        "model_reference": "invitation_only",
-        "type": "PRODUCT_TYPE",
-        "input_type": "BOOLEAN",
-    },
-    {
-        "name": "Max Student Enrollments Allowed",
-        "model_reference": "max_student_enrollments_allowed",
-        "type": "PRODUCT_TYPE",
-        "input_type": "NUMERIC",
-    },
-    {
-        "name": "Eligible For Financial Aid",
-        "model_reference": "eligible_for_financial_aid",
-        "type": "PRODUCT_TYPE",
-        "input_type": "BOOLEAN",
-    },
-    {
-        "name": "Organization",
-        "model_reference": "org",
-        "type": "PRODUCT_TYPE",
-        "input_type": "PLAIN_TEXT",
-    },
-    {
-        "name": "Language",
-        "model_reference": "language",
-        "type": "PRODUCT_TYPE",
-        "input_type": "PLAIN_TEXT",
-    },
-    {
-        "name": "Entrance Exam Minimum Score Percentage",
-        "model_reference": "entrance_exam_minimum_score_pct",
-        "type": "PRODUCT_TYPE",
-        "input_type": "NUMERIC",
-    },
-]
+def find_errors(response_data: dict):
+    """
+    Recursively search for a key named 'errors' in a dictionary or list of dictionaries.
+
+    Args:
+        data: The dictionary or list to search within.
+
+    Returns:
+        The value associated with the first non-empty 'errors' key found, or None if not found.
+    """
+    if isinstance(response_data, dict):
+        if "errors" in response_data and response_data["errors"]:
+            return response_data["errors"]
+        for _, value in response_data.items():
+            errors = find_errors(value)
+            if errors:
+                return errors
+    elif isinstance(response_data, list):
+        for item in response_data:
+            errors = find_errors(item)
+            if errors:
+                return errors
+    return None
+
+
+def get_product_attributes_configuration() -> dict:
+    """
+    Returns the configuration for mapping CourseOverview attributes to Saleor product attributes.
+
+    This defines which fields from the CourseOverview model should be mapped
+    to which Saleor product attributes and their names.
+
+    Returns:
+        dict: A dictionary containing the product type name and a list of attribute mappings.
+    """
+
+    return {
+        'product_type': 'Course',
+        'attributes': [
+            {
+                'model_attribute': 'id',
+                'product_attribute': 'Course ID'
+            },
+            {
+                'model_attribute': 'banner_image_url',
+                'product_attribute': 'Banner Image URL',
+            },
+            {
+                'model_attribute': 'course_image_url',
+                'product_attribute': 'Course Image URL',
+            },
+            {
+                'model_attribute': 'start',
+                'product_attribute': 'Course Start Date',
+            },
+            {
+                'model_attribute': 'end',
+                'product_attribute': 'Course End Date'
+            },
+            {
+                'model_attribute': 'enrollment_start',
+                'product_attribute': 'Enrollment Start Date',
+            },
+            {
+                'model_attribute': 'enrollment_end',
+                'product_attribute': 'Enrollment End Date',
+            },
+            {
+                'model_attribute': 'self_paced',
+                'product_attribute': 'Self Paced',
+            },
+            {
+                'model_attribute': 'mobile_available',
+                'product_attribute': 'Mobile Available',
+            },
+            {
+                'model_attribute': 'cert_name_long',
+                'product_attribute': 'Certificate Name',
+            },
+            {
+                'model_attribute': 'lowest_passing_grade',
+                'product_attribute': 'Lowest Passing Grade',
+            },
+            {
+                'model_attribute': 'invitation_only',
+                'product_attribute': 'Invitation Only',
+            },
+            {
+                'model_attribute': 'max_student_enrollments_allowed',
+                'product_attribute': 'Max Student Enrollments Allowed',
+            },
+            {
+                'model_attribute': 'eligible_for_financial_aid',
+                'product_attribute': 'Eligible For Financial Aid',
+            },
+            {
+                'model_attribute': 'org',
+                'product_attribute': 'Organization'
+            },
+            {
+                'model_attribute': 'language',
+                'product_attribute': 'Language'
+            },
+            {
+                'model_attribute': 'entrance_exam_minimum_score_pct',
+                'product_attribute': 'Entrance Exam Minimum Score Percentage',
+            },
+        ],
+    }
