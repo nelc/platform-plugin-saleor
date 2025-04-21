@@ -2,6 +2,12 @@
 
 from django.conf import settings
 
+from platform_plugin_saleor.saleor_app.subscriptions import (
+    ORDER_CREATED_SUBSCRIPTION,
+    ORDER_PAID_SUBSCRIPTION,
+    ORDER_UPDATED_SUBSCRIPTION,
+)
+
 
 def get_app_manifest():
     """
@@ -12,44 +18,6 @@ def get_app_manifest():
 
     Returns:
         dict: A dictionary containing the complete application manifest.
-    """
-
-    order_paid_query = """
-    subscription {
-      event {
-        ... on OrderPaid {
-          order {
-            id
-            number
-            status
-            isPaid
-            user {
-              id
-              email
-            }
-          }
-        }
-      }
-    }
-    """
-
-    order_updated_query = """
-    subscription {
-      event {
-        ... on OrderUpdated {
-          order {
-            id
-            number
-            status
-            isPaid
-            user {
-              id
-              email
-            }
-          }
-        }
-      }
-    }
     """
 
     manifest = {
@@ -95,17 +63,24 @@ def get_app_manifest():
           {
             'name': 'Order paid',
             'asyncEvents': ['ORDER_PAID',],
-            'query': order_paid_query,
+            'query': ORDER_PAID_SUBSCRIPTION,
             'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/webhooks/order-paid',
             'isActive': True,
           },
           {
             'name': 'Order updated',
             'asyncEvents': ['ORDER_UPDATED',],
-            'query':  order_updated_query,
+            'query':  ORDER_UPDATED_SUBSCRIPTION,
             'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/webhooks/order-updated',
             'isActive': True,
           },
+          {
+            'name': 'Order created',
+            'asyncEvents': ['ORDER_CREATED',],
+            'query':  ORDER_CREATED_SUBSCRIPTION,
+            'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/webhooks/order-created',
+            'isActive': True,
+          }
         ]
     }
 
