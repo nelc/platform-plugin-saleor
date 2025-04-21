@@ -2,7 +2,56 @@
 
 from django.conf import settings
 
+
 def get_app_manifest():
+    """
+    Generate the application manifest for Saleor integration.
+
+    The manifest defines the application's metadata, permissions, webhooks,
+    and integration points that Saleor will use to interact with this plugin.
+
+    Returns:
+        dict: A dictionary containing the complete application manifest.
+    """
+
+    order_paid_query = """
+    subscription {
+      event {
+        ... on OrderPaid {
+          order {
+            id
+            number
+            status
+            isPaid
+            user {
+              id
+              email
+            }
+          }
+        }
+      }
+    }
+    """
+
+    order_updated_query = """
+    subscription {
+      event {
+        ... on OrderUpdated {
+          order {
+            id
+            number
+            status
+            isPaid
+            user {
+              id
+              email
+            }
+          }
+        }
+      }
+    }
+    """
+
     manifest = {
         'id': 'platform.plugin.saleor',
         'version': '0.1.0',
@@ -34,21 +83,27 @@ def get_app_manifest():
             'MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES'
         ],
         'appUrl': f'{settings.LMS_ROOT_URL}',
-        'configurationUrl': f'{settings.LMS_ROOT_URL}/api/configuration',
-        'tokenTargetUrl': f'{settings.LMS_ROOT_URL}/api/register',
-
+        'configurationUrl': f'{settings.LMS_ROOT_URL}/saleor/api/configuration',
+        'tokenTargetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/register',
         'dataPrivacy': 'Lorem ipsum',
         'brand': {
           'logo': {
-            'default': f'{settings.DEFAULT_EMAIL_LOGO_URL}'
+            'default': f'{settings.LMS_ROOT_URL}/static/nelp-edx-theme-bragi/images/logo.png',
           }
         },
         'webhooks': [
           {
-            'name': 'Order created',
-            'asyncEvents': ['ORDER_CREATED'],
-            'query': 'subscription { event { ... on OrderCreated { order { id number status } } } }',
-            'targetUrl': f'{settings.LMS_ROOT_URL}/api/webhooks/order-created',
+            'name': 'Order paid',
+            'asyncEvents': ['ORDER_PAID',],
+            'query': order_paid_query,
+            'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/webhooks/order-paid',
+            'isActive': True,
+          },
+          {
+            'name': 'Order updated',
+            'asyncEvents': ['ORDER_UPDATED',],
+            'query':  order_updated_query,
+            'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/webhooks/order-updated',
             'isActive': True,
           },
         ]

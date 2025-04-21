@@ -1,7 +1,7 @@
 """
 URLs for platform_plugin_saleor.
 """
-from django.urls import path, include
+from django.urls import include, path
 
 from platform_plugin_saleor import views
 
