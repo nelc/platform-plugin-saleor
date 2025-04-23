@@ -1,5 +1,7 @@
 """Utility functions for Saleor GraphQL client."""
 
+from datetime import datetime
+
 ATTRIBUTE_TYPES_MAP = {
     'TextField': 'PLAIN_TEXT',
     'CharField': 'PLAIN_TEXT',
@@ -16,15 +18,15 @@ def generate_saleor_product_attribute_data(
     model_cls, model_field: str, product_attrb_name: str
 ) -> dict:
     """
-    Generate the data structure for a Saleor product attribute based on a model field.
+    Build a Saleor product attribute data dictionary from a Django model field.
 
     Args:
-        model_cls: The Django model class.
-        model_field: The name of the field in the model.
-        product_attrb_name: The desired name for the Saleor product attribute.
+        model_cls: Django model class containing the field.
+        model_field: Name of the field in the model.
+        product_attrb_name: Name to use for the Saleor product attribute.
 
     Returns:
-        dict: A dictionary representing the Saleor attribute data.
+        dict: Saleor attribute data with keys: name, externalReference, type, inputType, slug.
     """
     model_field_type = get_model_field_type(model_cls, model_field)
     input_type = ATTRIBUTE_TYPES_MAP.get(model_field_type, "PLAIN_TEXT")
@@ -34,19 +36,20 @@ def generate_saleor_product_attribute_data(
         'externalReference': model_field,
         'type': 'PRODUCT_TYPE',
         'inputType': input_type,
+        'slug': convert_to_camel_case(model_field),
     }
 
 
 def get_model_field_type(model_cls, field_name: str) -> str:
     """
-    Get the internal type name of a field in a Django model.
+    Return the internal Django type name for a given model field.
 
     Args:
-        model_cls: The Django model class.
-        field_name: The name of the field.
+        model_cls: Django model class.
+        field_name: Name of the field to inspect.
 
     Returns:
-        str: The internal type name of the field (e.g., 'CharField', 'DateTimeField').
+        str: Internal type name (e.g., 'CharField', 'DateTimeField').
 
     Raises:
         ValueError: If the field does not exist in the model.
@@ -54,7 +57,6 @@ def get_model_field_type(model_cls, field_name: str) -> str:
     try:
         field = model_cls._meta.get_field(field_name)
         return field.get_internal_type()
-
     except AttributeError as exc:
         raise ValueError(
             f"Field '{field_name}' does not exist in model '{model_cls.__name__}'."
@@ -63,13 +65,13 @@ def get_model_field_type(model_cls, field_name: str) -> str:
 
 def clean_edges_and_nodes(response: dict) -> list[dict]:
     """
-    Clean the edges and nodes from the GraphQL response.
+    Extract and return the list of nodes from a GraphQL response with an 'edges' structure.
 
     Args:
-        response: The response from the GraphQL query
+        response: GraphQL response dictionary containing an 'edges' key.
 
     Returns:
-        list: A list of cleaned nodes
+        list[dict]: List of node dictionaries extracted from the response.
     """
     cleaned_data = []
     edges = response.get("edges", [])
@@ -84,28 +86,65 @@ def clean_edges_and_nodes(response: dict) -> list[dict]:
 
 def convert_to_camel_case(snake_str: str) -> str:
     """
-    Convert snake_case string to camelCase.
+    Convert a snake_case string to camelCase.
 
     Args:
-        snake_str: The snake_case string
+        snake_str: String in snake_case format.
 
     Returns:
-        str: The camelCase string
+        str: String converted to camelCase.
     """
     snake_str = snake_str.lower()
     components = snake_str.split("_")
     return components[0] + "".join(x.title() for x in components[1:])
 
 
-def find_errors(response_data: dict):
+def create_rich_text(text: str = "No description"):
     """
-    Recursively search for a key named 'errors' in a dictionary or list of dictionaries.
+    Create a Saleor-compatible rich text block with the given text.
 
     Args:
-        data: The dictionary or list to search within.
+        text: Text to include in the rich text block.
 
     Returns:
-        The value associated with the first non-empty 'errors' key found, or None if not found.
+        dict: Rich text block dictionary.
+    """
+    return {"blocks": [{"type": "paragraph", "data": {"text": text}}]}
+
+
+def format_attribute_value(product_input_key: str, value) -> dict:
+    """
+    Format a value for a Saleor product attribute based on its input type.
+
+    Args:
+        product_input_key (str): Attribute input type ('boolean', 'dateTime', 'numeric', 'plainText').
+        value: Value to format.
+
+    Returns:
+        dict: Dictionary with the formatted value for the given input type.
+    """
+    if product_input_key == 'boolean':
+        return {'boolean': bool(value)}
+    elif product_input_key == 'dateTime':
+        if value and isinstance(value, datetime):
+            return {'dateTime': value.isoformat()}
+        else:
+            return {'dateTime': None}
+    elif product_input_key == 'numeric':
+        return {'numeric': str(value) if value is not None else '0'}
+    else:
+        return {'plainText': str(value) if value is not None else ''}
+
+
+def find_errors(response_data: dict):
+    """
+    Recursively search for and return the first non-empty 'errors' key in a nested dictionary or list.
+
+    Args:
+        response_data: Dictionary or list to search for 'errors'.
+
+    Returns:
+        Any: Value of the first found non-empty 'errors' key, or None if not found.
     """
     if isinstance(response_data, dict):
         if "errors" in response_data and response_data["errors"]:
@@ -120,89 +159,3 @@ def find_errors(response_data: dict):
             if errors:
                 return errors
     return None
-
-
-def get_product_attributes_configuration() -> dict:
-    """
-    Returns the configuration for mapping CourseOverview attributes to Saleor product attributes.
-
-    This defines which fields from the CourseOverview model should be mapped
-    to which Saleor product attributes and their names.
-
-    Returns:
-        dict: A dictionary containing the product type name and a list of attribute mappings.
-    """
-
-    return {
-        'product_type': 'Course',
-        'attributes': [
-            {
-                'model_attribute': 'id',
-                'product_attribute': 'Course ID'
-            },
-            {
-                'model_attribute': 'banner_image_url',
-                'product_attribute': 'Banner Image URL',
-            },
-            {
-                'model_attribute': 'course_image_url',
-                'product_attribute': 'Course Image URL',
-            },
-            {
-                'model_attribute': 'start',
-                'product_attribute': 'Course Start Date',
-            },
-            {
-                'model_attribute': 'end',
-                'product_attribute': 'Course End Date'
-            },
-            {
-                'model_attribute': 'enrollment_start',
-                'product_attribute': 'Enrollment Start Date',
-            },
-            {
-                'model_attribute': 'enrollment_end',
-                'product_attribute': 'Enrollment End Date',
-            },
-            {
-                'model_attribute': 'self_paced',
-                'product_attribute': 'Self Paced',
-            },
-            {
-                'model_attribute': 'mobile_available',
-                'product_attribute': 'Mobile Available',
-            },
-            {
-                'model_attribute': 'cert_name_long',
-                'product_attribute': 'Certificate Name',
-            },
-            {
-                'model_attribute': 'lowest_passing_grade',
-                'product_attribute': 'Lowest Passing Grade',
-            },
-            {
-                'model_attribute': 'invitation_only',
-                'product_attribute': 'Invitation Only',
-            },
-            {
-                'model_attribute': 'max_student_enrollments_allowed',
-                'product_attribute': 'Max Student Enrollments Allowed',
-            },
-            {
-                'model_attribute': 'eligible_for_financial_aid',
-                'product_attribute': 'Eligible For Financial Aid',
-            },
-            {
-                'model_attribute': 'org',
-                'product_attribute': 'Organization'
-            },
-            {
-                'model_attribute': 'language',
-                'product_attribute': 'Language'
-            },
-            {
-                'model_attribute': 'entrance_exam_minimum_score_pct',
-                'product_attribute': 'Entrance Exam Minimum Score Percentage',
-            },
-        ],
-    }
