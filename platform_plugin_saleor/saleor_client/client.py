@@ -8,7 +8,6 @@ utility methods for querying product types and attributes.
 import json
 import logging
 
-from django.conf import settings
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
 
@@ -37,33 +36,27 @@ logger = logging.getLogger(__name__)
 class SaleorApiClient:
     """Client for interacting with the Saleor GraphQL API."""
 
-    def __init__(
-        self, base_url: str = None, token: str = None, timeout: int = None
-    ):
+    def __init__(self, base_url: str, token: str, timeout: int = None):
         """
         Initialize the SaleorApiClient.
 
         Args:
-            base_url (str, optional): The Saleor API URL. Defaults to settings.SALEOR_API_URL.
-            token (str, optional): The Saleor API token. Defaults to settings.SALEOR_API_TOKEN.
-            timeout (int, optional): Request timeout in seconds.
+            base_url (str): The Saleor API URL.
+            token (str): The Saleor API token.
+            timeout (int): Request timeout in seconds.
         """
-        self.base_url = base_url or settings.SALEOR_API_URL
-        self.token = token or settings.SALEOR_API_TOKEN
+        self.base_url = base_url
+        self.token = token
 
-        try:
-            transport = AIOHTTPTransport(
-                url=self.base_url,
-                headers={"Authorization": f"Bearer {self.token}"},
-                timeout=timeout,
-            )
-            self.client = Client(
-                transport=transport,
-                fetch_schema_from_transport=False,
-            )
-        except Exception as e:
-            logger.error(f"Failed to initialize Saleor API client: {str(e)}")
-            raise
+        transport = AIOHTTPTransport(
+            url=self.base_url,
+            headers={"Authorization": f"Bearer {self.token}"},
+            timeout=timeout,
+        )
+        self.client = Client(
+            transport=transport,
+            fetch_schema_from_transport=False,
+        )
 
     def execute(self, query: str, variables: dict):
         """

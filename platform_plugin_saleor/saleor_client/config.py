@@ -57,14 +57,8 @@ class EdxCourseOverviewSaleorConfig(SaleorConfig):
                 ModelToSaleorAttribute("enrollment_start", "Enrollment Start Date"),
                 ModelToSaleorAttribute("enrollment_end", "Enrollment End Date"),
                 ModelToSaleorAttribute("self_paced", "Self Paced"),
-                ModelToSaleorAttribute("mobile_available", "Mobile Available"),
-                ModelToSaleorAttribute("cert_name_long", "Certificate Name"),
-                ModelToSaleorAttribute("lowest_passing_grade", "Lowest Passing Grade"),
-                ModelToSaleorAttribute("invitation_only", "Invitation Only"),
-                ModelToSaleorAttribute("max_student_enrollments_allowed", "Max Student Enrollments Allowed"),
                 ModelToSaleorAttribute("eligible_for_financial_aid", "Eligible For Financial Aid"),
                 ModelToSaleorAttribute("org", "Organization"),
                 ModelToSaleorAttribute("language", "Language"),
-                ModelToSaleorAttribute("entrance_exam_minimum_score_pct", "Entrance Exam Minimum Score Percentage"),
             ]
         )

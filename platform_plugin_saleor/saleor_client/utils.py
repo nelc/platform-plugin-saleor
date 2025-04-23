@@ -15,7 +15,7 @@ ATTRIBUTE_TYPES_MAP = {
 
 
 def generate_saleor_product_attribute_data(
-    model_cls, model_field: str, product_attrb_name: str
+    model_cls, model_field: str, product_attr_name: str
 ) -> dict:
     """
     Build a Saleor product attribute data dictionary from a Django model field.
@@ -32,7 +32,7 @@ def generate_saleor_product_attribute_data(
     input_type = ATTRIBUTE_TYPES_MAP.get(model_field_type, "PLAIN_TEXT")
 
     return {
-        'name': product_attrb_name,
+        'name': product_attr_name,
         'externalReference': model_field,
         'type': 'PRODUCT_TYPE',
         'inputType': input_type,
@@ -77,8 +77,7 @@ def clean_edges_and_nodes(response: dict) -> list[dict]:
     edges = response.get("edges", [])
 
     for edge in edges:
-        node = edge.get("node", {})
-        if node:
+        if node := edge.get("node", {}):
             cleaned_data.append(node)
 
     return cleaned_data
@@ -149,13 +148,12 @@ def find_errors(response_data: dict):
     if isinstance(response_data, dict):
         if "errors" in response_data and response_data["errors"]:
             return response_data["errors"]
-        for _, value in response_data.items():
+        for value in response_data.values():
             errors = find_errors(value)
             if errors:
                 return errors
     elif isinstance(response_data, list):
         for item in response_data:
-            errors = find_errors(item)
-            if errors:
+            if errors := find_errors(item):
                 return errors
     return None
