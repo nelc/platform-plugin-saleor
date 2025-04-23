@@ -23,3 +23,13 @@ query getProductTypes(
   }
 }
 """
+
+GET_PRODUCT_VARIANT = """
+query getProductVariant($sku: String){
+    productVariant(sku: $sku) {
+        id
+        sku
+        name
+    }
+}
+"""

@@ -14,11 +14,12 @@ from gql.transport.aiohttp import AIOHTTPTransport
 from platform_plugin_saleor.saleor_client.config import EdxCourseOverviewSaleorConfig, SaleorConfig
 from platform_plugin_saleor.saleor_client.exceptions import GraphQLError
 from platform_plugin_saleor.saleor_client.mutations import (
+    CREATE_CHECKOUT,
     CREATE_COURSE_PRODUCT,
     CREATE_PRODUCT_ATTRIBUTES,
     CREATE_PRODUCT_TYPE,
 )
-from platform_plugin_saleor.saleor_client.queries import GET_PRODUCT_ATTRIBUTES, GET_PRODUCT_TYPES
+from platform_plugin_saleor.saleor_client.queries import GET_PRODUCT_ATTRIBUTES, GET_PRODUCT_TYPES, GET_PRODUCT_VARIANT
 from platform_plugin_saleor.saleor_client.utils import (
     ATTRIBUTE_TYPES_MAP,
     clean_edges_and_nodes,
@@ -256,3 +257,29 @@ class SaleorApiClient:
                 return product_type.get("id")
 
         return None
+
+    def get_product_variant(self, sku: str) -> dict:
+        """
+        TO-DO
+        """
+        variables = {
+            "sku": sku,
+        }
+        return self.execute(GET_PRODUCT_VARIANT, variables)
+
+    def create_checkout(self, email: str, product_variant: str) -> dict:
+        """
+        TO-DO
+        """
+        variables = {
+            "input": {
+                "email": email,
+                "lines": [
+                    {
+                        "quantity": 1,
+                        "variantId": product_variant,
+                    },
+                ],
+            }
+        }
+        return self.execute(CREATE_CHECKOUT, variables)
