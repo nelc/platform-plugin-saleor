@@ -2,6 +2,7 @@
 
 import logging
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from gql.transport.aiohttp import log as aiohttp_logger
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview  # pylint: disable=import-error
@@ -60,7 +61,11 @@ class Command(BaseCommand):
             )
             return
 
-        client = SaleorApiClient()
+        client = SaleorApiClient(
+            base_url=settings.SALEOR_API_URL,
+            token=settings.SALEOR_API_TOKEN
+        )
+
         config = EdxCourseOverviewSaleorConfig()
 
         if course_ids:

@@ -2,6 +2,7 @@
 
 import logging
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from gql.transport.aiohttp import log as aiohttp_logger
 
@@ -29,7 +30,10 @@ class Command(BaseCommand):
         """
 
         try:
-            client = SaleorApiClient()
+            client = SaleorApiClient(
+                base_url=settings.SALEOR_API_URL,
+                token=settings.SALEOR_API_TOKEN
+            )
             config = EdxCourseOverviewSaleorConfig()
             product_type = client.create_product_type(config=config)
 
