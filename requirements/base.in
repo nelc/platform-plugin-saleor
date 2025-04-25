@@ -2,8 +2,7 @@
 -c constraints.txt
 
 Django             # Web application framework
-
-
-openedx-atlas
-edx_django_utils   # Django utilities, we use caching and monitoring 
+edx_django_utils   # Django utilities, we use caching and monitoring
 gql                # GraphQL client for Python
+hashids
+openedx-atlas

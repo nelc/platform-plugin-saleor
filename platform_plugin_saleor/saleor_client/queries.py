@@ -33,3 +33,13 @@ query getProductVariant($sku: String){
     }
 }
 """
+
+GET_USER = """
+query getUser($email: String){
+    user(email: $email) {
+        id
+        email
+        externalReference
+    }
+}
+"""
