@@ -46,7 +46,6 @@ mutation CreateCourseProduct(
 }
 """
 
-
 CREATE_CHECKOUT = """
 mutation CreateCheckout(
     $input: CheckoutCreateInput!
@@ -55,6 +54,31 @@ mutation CreateCheckout(
     #https://docs.saleor.io/api-reference/checkout/inputs/checkout-create-input
 
     checkoutCreate(input: $input) {
+        checkout { id }
+        errors { message }
+    }
+}
+"""
+
+ACCOUNT_REGISTER = """
+mutation accountRegister(
+    $input: AccountRegisterInput!
+) {
+    #Take a look at AccountRegisterInput in Saleor GraphQL API
+    #https://docs.saleor.io/api-reference/users/inputs/account-register-input
+
+    accountRegister(input: $input) {
+        user { id, email }
+        errors { code, field, message }
+    }
+}
+"""
+
+ATTACH_CHECKOUT_CUSTOMER = """
+mutation attachCustomer(
+    $id: ID, $customerId: ID
+) {
+    checkoutCustomerAttach(id: $id, customerId: $customerId) {
         checkout { id }
         errors { message }
     }
