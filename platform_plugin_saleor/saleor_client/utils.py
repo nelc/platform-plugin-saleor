@@ -36,7 +36,6 @@ def generate_saleor_product_attribute_data(
         'externalReference': model_field,
         'type': 'PRODUCT_TYPE',
         'inputType': input_type,
-        'slug': convert_to_camel_case(model_field),
     }
 
 
