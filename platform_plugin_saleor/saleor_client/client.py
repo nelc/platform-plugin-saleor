@@ -224,6 +224,7 @@ class SaleorApiClient:
                 "name": str(course.display_name),
                 "description": json.dumps(description),
                 "attributes": query_attributes,
+                "externalReference": str(course.id),
             }
         }
 
