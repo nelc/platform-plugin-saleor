@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from platform_plugin_saleor.manifest import get_app_manifest
-from platform_plugin_saleor.pipelines.enrollment import run_course_enrollment_pipeline
+from platform_plugin_saleor.webhooks.fulfillment.pipeline import run_fulfillment_pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ def register_saleor_app_token(request):
 
 
 @csrf_exempt
-def enroll_user_in_courses(request):
+def fulfill_order(request):
     """
     Handle the order fully paid webhook from Saleor.
 
@@ -72,11 +72,12 @@ def enroll_user_in_courses(request):
     payload = json.loads(request.body)
     order = payload.get("order", {})
 
-    status = run_course_enrollment_pipeline(order=order)
+    result = run_fulfillment_pipeline(order=order)
 
-    if status.get("success") is False:
+    if "error" in result:
+        logger.error(f"Fulfillment pipeline error: {result['error']}")
         return JsonResponse(
-            {"success": False, "message": status.get("error")},
+            {"success": False, "message": result["error"]},
             status=400,
         )
 

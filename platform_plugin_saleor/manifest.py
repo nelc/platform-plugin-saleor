@@ -2,7 +2,9 @@
 
 from django.conf import settings
 
-from platform_plugin_saleor.saleor_client.queries import ORDER_FULLY_PAID_SUBSCRIPTION
+from platform_plugin_saleor.saleor_client.queries import GET_ORDER_FULLY_PAID_SUBSCRIPTION
+
+SALEOR_APP_ID = "platform.plugin.saleor"
 
 
 def get_app_manifest():
@@ -16,7 +18,7 @@ def get_app_manifest():
         dict: A dictionary containing the complete application manifest.
     """
     manifest = {
-        'id': 'platform.plugin.saleor',
+        'id': SALEOR_APP_ID,
         'version': '0.1.0',
         'requiredSaleorVersion': '^3.13',
         'name': 'platform-plugin-saleor',
@@ -58,8 +60,8 @@ def get_app_manifest():
           {
             'name': 'Order fully paid',
             'asyncEvents': ['ORDER_FULLY_PAID',],
-            'query':  ORDER_FULLY_PAID_SUBSCRIPTION,
-            'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/webhooks/enroll-user',
+            'query':  GET_ORDER_FULLY_PAID_SUBSCRIPTION,
+            'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/webhooks/fulfill-order',
             'isActive': True,
           }
         ]
