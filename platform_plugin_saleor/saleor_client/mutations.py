@@ -84,3 +84,14 @@ mutation attachCustomer(
     }
 }
 """
+
+CREATE_TOKEN = """
+mutation createToken(
+    $email: String!, $password: String!
+) {
+    tokenCreate(email: $email, password: $password) {
+        token
+        errors { code, field, message }
+    }
+}
+"""
