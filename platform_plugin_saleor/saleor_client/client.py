@@ -420,6 +420,7 @@ class SaleorApiClient:
     def initialize_transaction_for_checkout(
         self,
         checkout_id:str,
+        payment_app_id:str="platform.plugin.saleor",
         data:dict={
             "event": {
                 "includePspReference": True,
@@ -430,6 +431,7 @@ class SaleorApiClient:
         """
         variables = {
             "id": checkout_id,
+            "paymentAppId": payment_app_id,
             "data": data,
         }
         return self.execute(INITIALIZE_TRANSACTION, variables)

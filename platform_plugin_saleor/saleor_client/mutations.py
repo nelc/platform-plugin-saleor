@@ -126,10 +126,12 @@ mutation UpdateDelivery($id: ID!, $methodId: ID!) {
 """
 
 INITIALIZE_TRANSACTION = """
-mutation InitializeTransaction($id: ID!, $data: JSON!) {
+mutation InitializeTransaction($id: ID!, $paymentAppId: String!, $data: JSON!) {
   transactionInitialize(
     id: $id
-    paymentGateway: {id: "saleor.io.dummy-payment-app", data: $data}
+    paymentGateway: {
+        id: $paymentAppId, data: $data
+    }
   ) {
     errors {
       code
