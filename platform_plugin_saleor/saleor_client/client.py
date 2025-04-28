@@ -22,6 +22,9 @@ from platform_plugin_saleor.saleor_client.mutations import (
     CREATE_PRODUCT_TYPE,
     CREATE_TOKEN,
     FULLFILL_ORDER,
+    INITIALIZE_TRANSACTION,
+    COMPLETE_CHECKOUT,
+    UPDATE_DELIVERY,
 )
 from platform_plugin_saleor.saleor_client.queries import (
     GET_PRODUCT_ATTRIBUTES,
@@ -403,3 +406,38 @@ class SaleorApiClient:
         response_data = self.execute(FULLFILL_ORDER, variables)
 
         return response_data.get("orderFulfill")
+
+    def update_shipping_method(self, checkout_id:str, delivery_method_id:str) -> dict:
+        """To Do
+        """
+        variables = {
+            "id": checkout_id,
+            "methodId": delivery_method_id,
+
+        }
+        return self.execute(UPDATE_DELIVERY, variables)
+
+    def initialize_transaction_for_checkout(
+        self,
+        checkout_id:str,
+        data:dict={
+            "event": {
+                "includePspReference": True,
+                "type": "CHARGE_SUCCESS"
+            }},
+        ) -> dict:
+        """To Do
+        """
+        variables = {
+            "id": checkout_id,
+            "data": data,
+        }
+        return self.execute(INITIALIZE_TRANSACTION, variables)
+
+    def complete_checkout(self, checkout_id:str) -> dict:
+        """To Do
+        """
+        variables = {
+            "id": checkout_id,
+        }
+        return self.execute(COMPLETE_CHECKOUT, variables)

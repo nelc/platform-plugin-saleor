@@ -107,6 +107,66 @@ mutation orderFulfill(
       status
     }
     errors { field, message }
+    }
+}
+"""
+UPDATE_DELIVERY = """
+mutation UpdateDelivery($id: ID!, $methodId: ID!) {
+  checkoutDeliveryMethodUpdate(id: $id, deliveryMethodId: $methodId) {
+    checkout {
+      id
+      deliveryMethod {
+        ... on ShippingMethod {
+          id
+        }
+      }
+    }
+  }
+}
+"""
+
+INITIALIZE_TRANSACTION = """
+mutation InitializeTransaction($id: ID!, $data: JSON!) {
+  transactionInitialize(
+    id: $id
+    paymentGateway: {id: "saleor.io.dummy-payment-app", data: $data}
+  ) {
+    errors {
+      code
+      field
+      message
+    }
+    transaction {
+      id
+      pspReference
+    }
+    transactionEvent {
+      id
+      pspReference
+      message
+      externalUrl
+      amount {
+        currency
+        amount
+      }
+      type
+      idempotencyKey
+    }
+  }
+}
+"""
+COMPLETE_CHECKOUT = """
+mutation CompleteCheckout($id: ID!) {
+  checkoutComplete(id: $id) {
+    errors {
+      field
+      message
+    }
+    order {
+      id
+      number
+      paymentStatus
+    }
   }
 }
 """
