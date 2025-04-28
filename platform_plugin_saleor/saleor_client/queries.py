@@ -35,6 +35,7 @@ subscription {
                 isPaid
                 lines {
                     id
+                    quantity
                     variant {
                         name
                         product {
@@ -66,6 +67,18 @@ query getUser($email: String){
         id
         email
         externalReference
+    }
+}
+"""
+
+GET_WAREHOUSES = """
+query getWarehouses(
+    $limit: Int
+) {
+    warehouses(first: $limit) {
+        edges {
+            node { id, name }
+        }
     }
 }
 """

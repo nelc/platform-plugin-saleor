@@ -11,6 +11,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from opaque_keys.edx.keys import CourseKey  # pylint: disable=import-error
 
+from platform_plugin_saleor.saleor_client.client import SaleorApiClient
+
 User = get_user_model()
 
 logger = logging.getLogger(__name__)
@@ -143,3 +145,33 @@ def enroll_user_in_courses(user, courses, *args, **kwargs):
             return {"error": f"Failed to enroll user {user.username} in course {course_key}. Error: {e}"}
 
     return {"enrollments": enrollments}
+
+
+def update_order_fulfillment(order, order_lines, *args, **kwargs):
+    """
+    Update the fulfillment status of the order lines.
+
+    Args:
+        order_lines (list): A list of order line items.
+
+    Returns:
+        dict: Indicating success or failure with details.
+    """
+    client = SaleorApiClient(
+        base_url=settings.SALEOR_API_URL,
+        token=settings.SALEOR_API_TOKEN,
+    )
+
+    order_id = order.get("id")
+    warehouse = client.get_warehouse_by_name()
+
+    if not warehouse:
+        return {"error": "Warehouse not found."}
+
+    response = client.fulfill_order(
+        order_id=order_id,
+        warehouse_id=warehouse.get("id"),
+        lines=order_lines,
+    )
+
+    return {"fulfillments": response.get("fulfillments")}

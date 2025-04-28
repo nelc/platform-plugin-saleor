@@ -95,3 +95,18 @@ mutation createToken(
     }
 }
 """
+
+FULLFILL_ORDER = """
+mutation orderFulfill(
+    $input: OrderFulfillInput!
+    $order: ID
+){
+  orderFulfill(input: $input, order: $order) {
+    fulfillments {
+      created
+      status
+    }
+    errors { field, message }
+  }
+}
+"""
