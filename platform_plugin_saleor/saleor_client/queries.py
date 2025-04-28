@@ -61,6 +61,20 @@ query getProductVariant($sku: String){
 }
 """
 
+GET_PRODUCT_BY_ID = """
+query getProductById(
+    $externalReference: String!
+) {
+    product(externalReference: $externalReference) {
+        externalReference
+        description
+        created
+        name
+        variants { name, sku }
+    }
+}
+"""
+
 GET_WAREHOUSES = """
 query getWarehouses(
     $limit: Int

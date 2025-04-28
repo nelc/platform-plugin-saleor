@@ -19,9 +19,11 @@ from platform_plugin_saleor.saleor_client.mutations import (
     CREATE_PRODUCT_ATTRIBUTES,
     CREATE_PRODUCT_TYPE,
     FULLFILL_ORDER,
+    UPDATE_COURSE_PRODUCT,
 )
 from platform_plugin_saleor.saleor_client.queries import (
     GET_PRODUCT_ATTRIBUTES,
+    GET_PRODUCT_BY_ID,
     GET_PRODUCT_TYPES,
     GET_PRODUCT_VARIANT,
     GET_WAREHOUSES,
@@ -187,6 +189,49 @@ class SaleorApiClient:
             logger.error(message)
             raise ValueError(message)
 
+        variables = self.get_product_query_variables(course, config)
+
+        return self.execute(CREATE_COURSE_PRODUCT, variables)
+
+    def update_course_product(self, course, config: SaleorConfig = None):
+        """
+        Update an existing course product in Saleor.
+
+        Args:
+            course: The course object containing product data.
+            config (SaleorConfig, optional): The configuration for the course product.
+
+        Returns:
+            dict: The response data from the Saleor API.
+
+        Raises:
+            ValueError: If the product type does not exist.
+            GraphQLError: If the API response contains errors.
+        """
+        config = config or EdxCourseOverviewSaleorConfig()
+        variables = self.get_product_query_variables(course, config)
+
+        # Adjust the variables according to the ProductInput
+        variables["input"].pop("productType", None)
+        variables["input"].pop("externalReference", None)
+        variables["externalReference"] = str(course.id)
+
+        return self.execute(UPDATE_COURSE_PRODUCT, variables)
+
+    def get_product_query_variables(self, course, config: SaleorConfig = None):
+        """
+        Generate the variables for creating or updating a course product in Saleor.
+
+        Args:
+            course: The course object containing product data.
+            config (SaleorConfig, optional): The configuration for the course product.
+
+        Returns:
+            dict: The variables dictionary for the GraphQL mutation.
+        """
+        config = config or EdxCourseOverviewSaleorConfig()
+        product_type_id = self.get_product_type_id(config.product_type_name)
+
         query_attributes = []
 
         for attrb in config.attributes_mapping:
@@ -225,8 +270,7 @@ class SaleorApiClient:
                 "externalReference": str(course.id),
             }
         }
-
-        return self.execute(CREATE_COURSE_PRODUCT, variables)
+        return variables
 
     def get_attribute_ids(self):
         """
@@ -359,3 +403,24 @@ class SaleorApiClient:
         response_data = self.execute(FULLFILL_ORDER, variables)
 
         return response_data.get("orderFulfill")
+
+    def get_product_by_id(self, product_id: str) -> dict:
+        """
+        Retrieve a product by its external reference ID.
+
+        Args:
+            product_id (str): The external reference ID of the product.
+
+        Returns:
+            dict: The product data.
+
+        Raises:
+            GraphQLError: If the API response contains errors.
+        """
+        variables = {
+            "externalReference": product_id,
+        }
+
+        response = self.execute(GET_PRODUCT_BY_ID, variables)
+
+        return response.get("product")

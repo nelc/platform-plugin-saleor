@@ -3,7 +3,7 @@ platform_plugin_saleor Django application initialization.
 """
 
 from django.apps import AppConfig
-from edx_django_utils.plugins import PluginSettings, PluginURLs
+from edx_django_utils.plugins import PluginSettings, PluginSignals, PluginURLs
 
 
 class PlatformPluginSaleorConfig(AppConfig):
@@ -36,4 +36,16 @@ class PlatformPluginSaleorConfig(AppConfig):
                 "common": {PluginSettings.RELATIVE_PATH: "settings.common"},
             },
         },
+        PluginSignals.CONFIG: {
+            "cms.djangoapp": {
+                PluginSignals.RECEIVERS: [
+                    {
+                        PluginSignals.RECEIVER_FUNC_NAME: "receive_course_published",
+                        PluginSignals.SIGNAL_PATH: (
+                            "xmodule.modulestore.django.COURSE_PUBLISHED"
+                        ),
+                    },
+                ],
+            },
+        }
     }
