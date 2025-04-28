@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from platform_plugin_saleor.manifest import get_app_manifest
+from platform_plugin_saleor.pipelines.enrollment import run_course_enrollment_pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -69,8 +70,15 @@ def enroll_user_in_courses(request):
     """
 
     payload = json.loads(request.body)
+    order = payload.get("order", {})
 
-    logger.debug(f"Received webhook payload: {json.dumps(payload, indent=2)}")
+    status = run_course_enrollment_pipeline(order=order)
+
+    if status.get("success") is False:
+        return JsonResponse(
+            {"success": False, "message": status.get("error")},
+            status=400,
+        )
 
     return JsonResponse(
         {"success": True, "message": "Webhook received successfully."},
