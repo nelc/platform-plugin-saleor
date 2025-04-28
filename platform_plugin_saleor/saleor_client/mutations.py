@@ -45,3 +45,18 @@ mutation CreateCourseProduct(
     }
 }
 """
+
+
+CREATE_CHECKOUT = """
+mutation CreateCheckout(
+    $input: CheckoutCreateInput!
+) {
+    #Take a look at CheckoutCreateInput in Saleor GraphQL API
+    #https://docs.saleor.io/api-reference/checkout/inputs/checkout-create-input
+
+    checkoutCreate(input: $input) {
+        checkout { id }
+        errors { message }
+    }
+}
+"""
