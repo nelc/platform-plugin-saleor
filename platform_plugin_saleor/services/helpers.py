@@ -1,13 +1,10 @@
 """
 TO-DO
 """
-import os
-import time
-from base64 import b64encode
 from functools import cache
 
+from common.djangoapps.student.models.user import anonymous_id_for_user  # pylint: disable=import-error
 from django.conf import settings
-from hashids import Hashids
 
 from platform_plugin_saleor.saleor_client.client import SaleorApiClient
 
@@ -44,8 +41,8 @@ def get_or_create_saleor_user(user) -> dict:
             first_name=user.first_name,
             last_name=user.last_name,
             email=user.email,
-            password=generate_password(),
-        )["accountRegister"]
+            password=generate_password(user=user),
+        )["accountRegister"]["user"]
 
     return saleor_user
 
@@ -72,11 +69,8 @@ def get_product_variant(sku: str) -> dict:
     return get_saleor_api_client_instance().get_product_variant(sku=sku)["productVariant"]
 
 
-def generate_password():
+def generate_password(user):
     """
     TO-DO
     """
-    salt = b64encode(os.urandom(16)).decode('utf-8')
-    hashids = Hashids(salt=salt, min_length=11)
-
-    return hashids.encode(int(time.time()))
+    return anonymous_id_for_user(user, None)
