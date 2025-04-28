@@ -9,4 +9,5 @@ urlpatterns = [
     path('saleor-info/', views.info_view, name='saleor-info'),
     path('services/', include("platform_plugin_saleor.services.urls", namespace='saleor-services')),
     path('api/', include('platform_plugin_saleor.saleor_app.urls'), name='api'),
+    path('webhooks/', include('platform_plugin_saleor.webhooks.urls'), name='api'),
 ]

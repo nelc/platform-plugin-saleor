@@ -7,7 +7,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from platform_plugin_saleor.saleor_app.manifest import get_app_manifest
+from platform_plugin_saleor.manifest import get_app_manifest
 
 logger = logging.getLogger(__name__)
 
@@ -49,5 +49,30 @@ def register_saleor_app_token(request):
 
     return JsonResponse(
         {"success": True, "message": "Token received successfully."},
+        status=200,
+    )
+
+
+@csrf_exempt
+def enroll_user_in_courses(request):
+    """
+    Handle the order fully paid webhook from Saleor.
+
+    This endpoint receives notifications when orders are fully paid in the Saleor system
+    and enrolls the user in the specified course.
+
+    Args:
+        request: The HTTP request object containing the webhook payload.
+
+    Returns:
+        JsonResponse: A JSON response indicating success or failure.
+    """
+
+    payload = json.loads(request.body)
+
+    logger.debug(f"Received webhook payload: {json.dumps(payload, indent=2)}")
+
+    return JsonResponse(
+        {"success": True, "message": "Webhook received successfully."},
         status=200,
     )

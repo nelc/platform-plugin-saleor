@@ -1,4 +1,4 @@
-"""Queries for Saleor GraphQL API."""
+"""Queries and subscriptions for Saleor GraphQL API."""
 
 GET_PRODUCT_ATTRIBUTES = """
 query getAttributes(
@@ -21,6 +21,32 @@ query getProductTypes(
             node { id, name }
         }
   }
+}
+"""
+
+ORDER_FULLY_PAID_SUBSCRIPTION = """
+subscription {
+    event {
+    ... on OrderFullyPaid {
+            order {
+                id
+                number
+                status
+                isPaid
+                lines {
+                    id
+                    variant {
+                        name
+                        product {
+                            name
+                            externalReference
+                        }
+                    }
+                }
+                user { id, email }
+            }
+        }
+    }
 }
 """
 
