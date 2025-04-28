@@ -2,11 +2,7 @@
 
 from django.conf import settings
 
-from platform_plugin_saleor.saleor_app.subscriptions import (
-    ORDER_CREATED_SUBSCRIPTION,
-    ORDER_PAID_SUBSCRIPTION,
-    ORDER_UPDATED_SUBSCRIPTION,
-)
+from platform_plugin_saleor.saleor_client.queries import ORDER_FULLY_PAID_SUBSCRIPTION
 
 
 def get_app_manifest():
@@ -19,7 +15,6 @@ def get_app_manifest():
     Returns:
         dict: A dictionary containing the complete application manifest.
     """
-
     manifest = {
         'id': 'platform.plugin.saleor',
         'version': '0.1.0',
@@ -51,8 +46,8 @@ def get_app_manifest():
             'MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES'
         ],
         'appUrl': f'{settings.LMS_ROOT_URL}',
-        'configurationUrl': f'{settings.LMS_ROOT_URL}/saleor/api/configuration',
-        'tokenTargetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/register',
+        'configurationUrl': f'{settings.LMS_ROOT_URL}/saleor/webhooks/configuration',
+        'tokenTargetUrl': f'{settings.LMS_ROOT_URL}/saleor/webhooks/register',
         'dataPrivacy': 'Lorem ipsum',
         'brand': {
           'logo': {
@@ -61,24 +56,10 @@ def get_app_manifest():
         },
         'webhooks': [
           {
-            'name': 'Order paid',
-            'asyncEvents': ['ORDER_PAID',],
-            'query': ORDER_PAID_SUBSCRIPTION,
-            'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/webhooks/order-paid',
-            'isActive': True,
-          },
-          {
-            'name': 'Order updated',
-            'asyncEvents': ['ORDER_UPDATED',],
-            'query':  ORDER_UPDATED_SUBSCRIPTION,
-            'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/webhooks/order-updated',
-            'isActive': True,
-          },
-          {
-            'name': 'Order created',
-            'asyncEvents': ['ORDER_CREATED',],
-            'query':  ORDER_CREATED_SUBSCRIPTION,
-            'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/api/webhooks/order-created',
+            'name': 'Order fully paid',
+            'asyncEvents': ['ORDER_FULLY_PAID',],
+            'query':  ORDER_FULLY_PAID_SUBSCRIPTION,
+            'targetUrl': f'{settings.LMS_ROOT_URL}/saleor/webhooks/enroll-user',
             'isActive': True,
           }
         ]
