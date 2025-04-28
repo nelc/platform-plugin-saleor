@@ -24,7 +24,7 @@ query getProductTypes(
 }
 """
 
-ORDER_FULLY_PAID_SUBSCRIPTION = """
+GET_ORDER_FULLY_PAID_SUBSCRIPTION = """
 subscription {
     event {
     ... on OrderFullyPaid {
