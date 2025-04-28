@@ -18,8 +18,14 @@ from platform_plugin_saleor.saleor_client.mutations import (
     CREATE_COURSE_PRODUCT,
     CREATE_PRODUCT_ATTRIBUTES,
     CREATE_PRODUCT_TYPE,
+    FULLFILL_ORDER,
 )
-from platform_plugin_saleor.saleor_client.queries import GET_PRODUCT_ATTRIBUTES, GET_PRODUCT_TYPES, GET_PRODUCT_VARIANT
+from platform_plugin_saleor.saleor_client.queries import (
+    GET_PRODUCT_ATTRIBUTES,
+    GET_PRODUCT_TYPES,
+    GET_PRODUCT_VARIANT,
+    GET_WAREHOUSES,
+)
 from platform_plugin_saleor.saleor_client.utils import (
     ATTRIBUTE_TYPES_MAP,
     clean_edges_and_nodes,
@@ -284,3 +290,72 @@ class SaleorApiClient:
             }
         }
         return self.execute(CREATE_CHECKOUT, variables)
+
+    def get_warehouse_by_name(self, warehouse_name: str = "Default Warehouse"):
+        """
+        Retrieve the warehouse data by its name.
+
+        Args:
+            warehouse_name (str): The name of the warehouse to search for.
+
+        Returns:
+            dict or None: The warehouse data if found, otherwise None.
+        """
+        variables = {"limit": 100}
+        response = self.execute(GET_WAREHOUSES, variables)
+        warehouses = clean_edges_and_nodes(response.get("warehouses", {}))
+
+        for warehouse in warehouses:
+            if warehouse.get("name") == warehouse_name:
+                return warehouse
+
+        return None
+
+    def fulfill_order(
+        self,
+        order_id: str,
+        warehouse_id: str,
+        lines: list,
+        notify_customer: bool = False,
+    ):
+        """
+        Fulfill an order in Saleor.
+
+        Args:
+            order_id (str): The ID of the order to fulfill.
+            warehouse_id (str): The ID of the warehouse to use for fulfillment.
+            lines (list): A list of line items to fulfill.
+            notify_customer (bool): Whether to notify the customer.
+
+        Returns:
+            dict: The response data from the Saleor API.
+
+        Raises:
+            GraphQLError: If the API response contains errors.
+        """
+        formatted_lines = []
+
+        for line in lines:
+            formatted_line = {
+                "orderLineId": line.get("id"),
+                "stocks": [
+                    {
+                        "quantity": line.get("quantity", 1),
+                        "warehouse": warehouse_id,
+                    }
+                ],
+            }
+            formatted_lines.append(formatted_line)
+
+        variables = {
+            "input": {
+                "lines": formatted_lines,
+                "notifyCustomer": notify_customer,
+                "allowStockToBeExceeded": True,
+            },
+            "order": order_id,
+        }
+
+        response_data = self.execute(FULLFILL_ORDER, variables)
+
+        return response_data.get("orderFulfill")

@@ -35,6 +35,7 @@ subscription {
                 isPaid
                 lines {
                     id
+                    quantity
                     variant {
                         name
                         product {
@@ -56,6 +57,18 @@ query getProductVariant($sku: String){
         id
         sku
         name
+    }
+}
+"""
+
+GET_WAREHOUSES = """
+query getWarehouses(
+    $limit: Int
+) {
+    warehouses(first: $limit) {
+        edges {
+            node { id, name }
+        }
     }
 }
 """

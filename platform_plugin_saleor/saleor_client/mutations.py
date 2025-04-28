@@ -46,7 +46,6 @@ mutation CreateCourseProduct(
 }
 """
 
-
 CREATE_CHECKOUT = """
 mutation CreateCheckout(
     $input: CheckoutCreateInput!
@@ -58,5 +57,20 @@ mutation CreateCheckout(
         checkout { id }
         errors { message }
     }
+}
+"""
+
+FULLFILL_ORDER = """
+mutation orderFulfill(
+    $input: OrderFulfillInput!
+    $order: ID
+){
+  orderFulfill(input: $input, order: $order) {
+    fulfillments {
+      created
+      status
+    }
+    errors { field, message }
+  }
 }
 """
