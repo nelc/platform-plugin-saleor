@@ -48,9 +48,7 @@ def get_app_manifest():
             'MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES'
         ],
         'appUrl': f'{settings.LMS_ROOT_URL}',
-        'configurationUrl': f'{settings.LMS_ROOT_URL}/saleor/webhooks/configuration',
         'tokenTargetUrl': f'{settings.LMS_ROOT_URL}/saleor/webhooks/register',
-        'dataPrivacy': 'Lorem ipsum',
         'brand': {
           'logo': {
             'default': f'{settings.LMS_ROOT_URL}/static/nelp-edx-theme-bragi/images/logo.png',
