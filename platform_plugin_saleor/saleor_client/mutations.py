@@ -46,6 +46,21 @@ mutation CreateCourseProduct(
 }
 """
 
+UPDATE_COURSE_PRODUCT = """
+mutation CreateCourseProduct(
+    $input: ProductInput!
+    $externalReference: String!
+) {
+    #Take a look at ProductInput in Saleor GraphQL API
+    #https://docs.saleor.io/api-reference/products/inputs/product-input
+
+    productUpdate(input: $input, externalReference: $externalReference) {
+        product { id, description }
+        errors { message, code, field, values }
+    }
+}
+"""
+
 CREATE_CHECKOUT = """
 mutation CreateCheckout(
     $input: CheckoutCreateInput!
