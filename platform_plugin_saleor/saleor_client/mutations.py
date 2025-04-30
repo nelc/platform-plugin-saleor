@@ -172,3 +172,24 @@ mutation CompleteCheckout($id: ID!) {
   }
 }
 """
+UPDATE_CHECKOUT_BILLING_ADDRESS = """
+mutation checkoutBillingAddressUpdate(
+    $checkoutId: ID!
+    $billingAddress: AddressInput!
+    $validationRules: CheckoutAddressValidationRules
+    $languageCode: LanguageCodeEnum!
+) {
+    checkoutBillingAddressUpdate(
+        id: $checkoutId
+        billingAddress: $billingAddress
+        validationRules: $validationRules
+    ) {
+        errors {
+            ...CheckoutErrorFragment
+        }
+        checkout {
+            ...CheckoutFragment
+        }
+    }
+}
+"""

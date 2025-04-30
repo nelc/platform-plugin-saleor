@@ -25,6 +25,7 @@ from platform_plugin_saleor.saleor_client.mutations import (
     INITIALIZE_TRANSACTION,
     COMPLETE_CHECKOUT,
     UPDATE_DELIVERY,
+    UPDATE_CHECKOUT_BILLING_ADDRESS,
 )
 from platform_plugin_saleor.saleor_client.queries import (
     GET_PRODUCT_ATTRIBUTES,
@@ -32,6 +33,7 @@ from platform_plugin_saleor.saleor_client.queries import (
     GET_PRODUCT_VARIANT,
     GET_USER,
     GET_WAREHOUSES,
+    GET_CHECKOUT,
 )
 from platform_plugin_saleor.saleor_client.utils import (
     ATTRIBUTE_TYPES_MAP,
@@ -303,6 +305,15 @@ class SaleorApiClient:
         }
         return self.execute(CREATE_CHECKOUT, variables)
 
+    def get_checkout_data(self, checkout_id:str) -> dict:
+        """
+        TO-DO
+        """
+        variables = {
+            "id": checkout_id,
+        }
+        return self.execute(GET_CHECKOUT, variables)
+
     def attach_customer(self, customer_id: str, checkout_id: str) -> dict:
         """
         TO-DO
@@ -443,3 +454,31 @@ class SaleorApiClient:
             "id": checkout_id,
         }
         return self.execute(COMPLETE_CHECKOUT, variables)
+    def update_checkout_billing_adress(
+        self,
+        checkout_id:str,
+        billing_address:dict={
+            "city": "colorado",
+            "cityArea": "downtown",
+            "companyName": "Nelc Company",
+            "country": "US",
+            "countryArea":"DC",
+            "firstName": "Jhon",
+            "lastName": "Doe",
+            "phone": "3218991612",
+            "postalCode": "12345",
+            "streetAddress1": "test street 1",
+            "streetAddress2": "test street 2",
+        },
+        language_code:str="EN_US",
+        validation_rules:dict={"checkRequiredFields": False},
+    ) -> dict:
+        """To Do
+        """
+        variables = {
+            "checkoutId": checkout_id,
+            "billingAddress": billing_address,
+            "languageCode": language_code,
+            "validationRules": validation_rules,
+        }
+        return self.execute(UPDATE_CHECKOUT_BILLING_ADDRESS, variables)
