@@ -20,6 +20,7 @@ from platform_plugin_saleor.saleor_client.mutations import (
     CREATE_COURSE_PRODUCT,
     CREATE_PRODUCT_ATTRIBUTES,
     CREATE_PRODUCT_TYPE,
+    CREATE_TOKEN,
 )
 from platform_plugin_saleor.saleor_client.queries import (
     GET_PRODUCT_ATTRIBUTES,
@@ -320,3 +321,13 @@ class SaleorApiClient:
             }
         }
         return self.execute(ACCOUNT_REGISTER, variables)
+
+    def create_token(self, email: str, password: str) -> dict:
+        """
+        TO-DO
+        """
+        variables = {
+            "email": email,
+            "password": password
+        }
+        return self.execute(CREATE_TOKEN, variables)
