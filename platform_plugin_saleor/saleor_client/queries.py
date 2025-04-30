@@ -82,3 +82,60 @@ query getWarehouses(
     }
 }
 """
+
+GET_CHECKOUT = """
+query getCheckout($id: ID!) {
+  checkout(id: $id) {
+    id
+    email
+    lines {
+      quantity
+      totalPrice {
+        currency
+        gross {
+          amount
+          currency
+        }
+        tax {
+          amount
+          currency
+        }
+      }
+      id
+      variant {
+        sku
+        name
+      }
+      unitPrice {
+        gross {
+          amount
+          currency
+        }
+      }
+    }
+    user {
+      firstName
+      lastName
+      languageCode
+    }
+    isShippingRequired
+    created
+    channel {
+      id
+      name
+    }
+    updatedAt
+    quantity
+    totalPrice {
+      currency
+      gross {
+        amount
+      }
+      tax {
+        amount
+        currency
+      }
+    }
+  }
+}
+"""

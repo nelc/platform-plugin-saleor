@@ -107,6 +107,93 @@ mutation orderFulfill(
       status
     }
     errors { field, message }
+    }
+}
+"""
+UPDATE_DELIVERY = """
+mutation UpdateDelivery($id: ID!, $methodId: ID!) {
+  checkoutDeliveryMethodUpdate(id: $id, deliveryMethodId: $methodId) {
+    checkout {
+      id
+      deliveryMethod {
+        ... on ShippingMethod {
+          id
+        }
+      }
+    }
   }
+}
+"""
+
+INITIALIZE_TRANSACTION = """
+mutation InitializeTransaction($id: ID!, $paymentAppId: String!, $data: JSON!) {
+  transactionInitialize(
+    id: $id
+    paymentGateway: {
+        id: $paymentAppId, data: $data
+    }
+  ) {
+    errors {
+      code
+      field
+      message
+    }
+    transaction {
+      id
+      pspReference
+    }
+    transactionEvent {
+      id
+      pspReference
+      message
+      externalUrl
+      amount {
+        currency
+        amount
+      }
+      type
+      idempotencyKey
+    }
+  }
+}
+"""
+COMPLETE_CHECKOUT = """
+mutation CompleteCheckout($id: ID!, $metadata: [MetadataInput!]) {
+  checkoutComplete(id: $id, metadata: $metadata) {
+    errors {
+      field
+      message
+    }
+    order {
+      id
+      number
+      paymentStatus
+    }
+  }
+}
+"""
+UPDATE_CHECKOUT_BILLING_ADDRESS = """
+mutation checkoutBillingAddressUpdate(
+    $checkoutId: ID!
+    $billingAddress: AddressInput!
+    $validationRules: CheckoutAddressValidationRules
+) {
+    checkoutBillingAddressUpdate(
+        id: $checkoutId
+        billingAddress: $billingAddress
+        validationRules: $validationRules
+    ) {
+        errors {
+            message
+            field
+            code
+        }
+        checkout {
+            id
+            email
+            created
+            updatedAt
+        }
+    }
 }
 """

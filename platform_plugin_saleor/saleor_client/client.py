@@ -22,6 +22,10 @@ from platform_plugin_saleor.saleor_client.mutations import (
     CREATE_PRODUCT_TYPE,
     CREATE_TOKEN,
     FULLFILL_ORDER,
+    INITIALIZE_TRANSACTION,
+    COMPLETE_CHECKOUT,
+    UPDATE_DELIVERY,
+    UPDATE_CHECKOUT_BILLING_ADDRESS,
 )
 from platform_plugin_saleor.saleor_client.queries import (
     GET_PRODUCT_ATTRIBUTES,
@@ -29,6 +33,7 @@ from platform_plugin_saleor.saleor_client.queries import (
     GET_PRODUCT_VARIANT,
     GET_USER,
     GET_WAREHOUSES,
+    GET_CHECKOUT,
 )
 from platform_plugin_saleor.saleor_client.utils import (
     ATTRIBUTE_TYPES_MAP,
@@ -300,6 +305,15 @@ class SaleorApiClient:
         }
         return self.execute(CREATE_CHECKOUT, variables)
 
+    def get_checkout_data(self, checkout_id:str) -> dict:
+        """
+        TO-DO
+        """
+        variables = {
+            "id": checkout_id,
+        }
+        return self.execute(GET_CHECKOUT, variables)
+
     def attach_customer(self, customer_id: str, checkout_id: str) -> dict:
         """
         TO-DO
@@ -403,3 +417,71 @@ class SaleorApiClient:
         response_data = self.execute(FULLFILL_ORDER, variables)
 
         return response_data.get("orderFulfill")
+
+    def update_shipping_method(self, checkout_id:str, delivery_method_id:str) -> dict:
+        """To Do
+        """
+        variables = {
+            "id": checkout_id,
+            "methodId": delivery_method_id,
+
+        }
+        return self.execute(UPDATE_DELIVERY, variables)
+
+    def initialize_transaction_for_checkout(
+        self,
+        checkout_id:str,
+        payment_app_id:str="platform.plugin.saleor",
+        data:dict={
+            "event": {
+                "includePspReference": True,
+                "type": "CHARGE_SUCCESS"
+            }},
+        ) -> dict:
+        """To Do
+        """
+        variables = {
+            "id": checkout_id,
+            "paymentAppId": payment_app_id,
+            "data": data,
+        }
+        return self.execute(INITIALIZE_TRANSACTION, variables)
+
+    def complete_checkout(self, checkout_id:str, metadata:list) -> dict:
+        """To Do
+        """
+        variables = {
+            "id": checkout_id,
+            "metadata": metadata,
+        }
+        return self.execute(COMPLETE_CHECKOUT, variables)
+    def update_checkout_billing_adress(
+        self,
+        checkout_id:str,
+        billing_address:dict={
+            "city": "Chicago",
+            "cityArea": "downtown",
+            "companyName": "Nelc Company",
+            "country": "US",
+            "countryArea":"DC",
+            "firstName": "Jhon",
+            "lastName": "Doe",
+            "phone": "3218991612",
+            "postalCode": "60007",
+            "streetAddress1": "test street 1",
+            "streetAddress2": "test street 2",
+        },
+        validation_rules:dict={
+            "checkRequiredFields": False,
+            "checkFieldsFormat": False,
+            "enableFieldsNormalization": False,
+        },
+    ) -> dict:
+        """To Do
+        """
+        variables = {
+            "checkoutId": checkout_id,
+            "billingAddress": billing_address,
+            "validationRules": validation_rules,
+        }
+        return self.execute(UPDATE_CHECKOUT_BILLING_ADDRESS, variables)
