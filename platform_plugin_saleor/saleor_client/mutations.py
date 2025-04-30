@@ -177,7 +177,6 @@ mutation checkoutBillingAddressUpdate(
     $checkoutId: ID!
     $billingAddress: AddressInput!
     $validationRules: CheckoutAddressValidationRules
-    $languageCode: LanguageCodeEnum!
 ) {
     checkoutBillingAddressUpdate(
         id: $checkoutId
@@ -185,10 +184,15 @@ mutation checkoutBillingAddressUpdate(
         validationRules: $validationRules
     ) {
         errors {
-            ...CheckoutErrorFragment
+            message
+            field
+            code
         }
         checkout {
-            ...CheckoutFragment
+            id
+            email
+            created
+            updatedAt
         }
     }
 }

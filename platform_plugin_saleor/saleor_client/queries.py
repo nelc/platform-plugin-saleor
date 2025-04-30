@@ -96,11 +96,21 @@ query getCheckout($id: ID!) {
           amount
           currency
         }
+        tax {
+          amount
+          currency
+        }
       }
       id
       variant {
         sku
         name
+      }
+      unitPrice {
+        gross {
+          amount
+          currency
+        }
       }
     }
     user {
@@ -115,6 +125,17 @@ query getCheckout($id: ID!) {
       name
     }
     updatedAt
+    quantity
+    totalPrice {
+      currency
+      gross {
+        amount
+      }
+      tax {
+        amount
+        currency
+      }
+    }
   }
 }
 """
