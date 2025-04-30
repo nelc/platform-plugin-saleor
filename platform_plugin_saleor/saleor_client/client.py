@@ -447,11 +447,12 @@ class SaleorApiClient:
         }
         return self.execute(INITIALIZE_TRANSACTION, variables)
 
-    def complete_checkout(self, checkout_id:str) -> dict:
+    def complete_checkout(self, checkout_id:str, metadata:list) -> dict:
         """To Do
         """
         variables = {
             "id": checkout_id,
+            "metadata": metadata,
         }
         return self.execute(COMPLETE_CHECKOUT, variables)
     def update_checkout_billing_adress(

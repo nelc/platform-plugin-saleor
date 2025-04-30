@@ -158,8 +158,8 @@ mutation InitializeTransaction($id: ID!, $paymentAppId: String!, $data: JSON!) {
 }
 """
 COMPLETE_CHECKOUT = """
-mutation CompleteCheckout($id: ID!) {
-  checkoutComplete(id: $id) {
+mutation CompleteCheckout($id: ID!, $metadata: [MetadataInput!]) {
+  checkoutComplete(id: $id, metadata: $metadata) {
     errors {
       field
       message
