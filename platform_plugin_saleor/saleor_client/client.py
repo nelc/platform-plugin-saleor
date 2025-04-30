@@ -14,12 +14,19 @@ from gql.transport.aiohttp import AIOHTTPTransport
 from platform_plugin_saleor.saleor_client.config import EdxCourseOverviewSaleorConfig, SaleorConfig
 from platform_plugin_saleor.saleor_client.exceptions import GraphQLError
 from platform_plugin_saleor.saleor_client.mutations import (
+    ACCOUNT_REGISTER,
+    ATTACH_CHECKOUT_CUSTOMER,
     CREATE_CHECKOUT,
     CREATE_COURSE_PRODUCT,
     CREATE_PRODUCT_ATTRIBUTES,
     CREATE_PRODUCT_TYPE,
 )
-from platform_plugin_saleor.saleor_client.queries import GET_PRODUCT_ATTRIBUTES, GET_PRODUCT_TYPES, GET_PRODUCT_VARIANT
+from platform_plugin_saleor.saleor_client.queries import (
+    GET_PRODUCT_ATTRIBUTES,
+    GET_PRODUCT_TYPES,
+    GET_PRODUCT_VARIANT,
+    GET_USER,
+)
 from platform_plugin_saleor.saleor_client.utils import (
     ATTRIBUTE_TYPES_MAP,
     clean_edges_and_nodes,
@@ -267,19 +274,49 @@ class SaleorApiClient:
         }
         return self.execute(GET_PRODUCT_VARIANT, variables)
 
-    def create_checkout(self, email: str, product_variant: str) -> dict:
+    def get_user_by_email(self, email) -> dict:
+        """
+        TO-DO
+        """
+        variables = {
+            "email": email,
+        }
+        return self.execute(GET_USER, variables)
+
+    def create_checkout(self, email: str, product_variants: list) -> dict:
+        """
+        TO-DO
+        """
+        lines = [{"quantity": 1, "variantId": variant["id"]} for variant in product_variants]
+        variables = {
+            "input": {
+                "email": email,
+                "lines": lines,
+            }
+        }
+        return self.execute(CREATE_CHECKOUT, variables)
+
+    def attach_customer(self, customer_id: str, checkout_id: str) -> dict:
+        """
+        TO-DO
+        """
+        variables = {
+            "id": checkout_id,
+            "customerId": customer_id,
+        }
+        return self.execute(ATTACH_CHECKOUT_CUSTOMER, variables)
+
+    def account_register(self, first_name: str, last_name: str, email: str, password: str) -> dict:
         """
         TO-DO
         """
         variables = {
             "input": {
+                "firstName": first_name,
+                "lastName": last_name,
                 "email": email,
-                "lines": [
-                    {
-                        "quantity": 1,
-                        "variantId": product_variant,
-                    },
-                ],
+                "password": password
+
             }
         }
-        return self.execute(CREATE_CHECKOUT, variables)
+        return self.execute(ACCOUNT_REGISTER, variables)
