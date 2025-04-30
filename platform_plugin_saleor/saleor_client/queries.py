@@ -1,4 +1,4 @@
-"""Queries for Saleor GraphQL API."""
+"""Queries and subscriptions for Saleor GraphQL API."""
 
 GET_PRODUCT_ATTRIBUTES = """
 query getAttributes(
@@ -24,6 +24,33 @@ query getProductTypes(
 }
 """
 
+GET_ORDER_FULLY_PAID_SUBSCRIPTION = """
+subscription {
+    event {
+    ... on OrderFullyPaid {
+            order {
+                id
+                number
+                status
+                isPaid
+                lines {
+                    id
+                    quantity
+                    variant {
+                        name
+                        product {
+                            name
+                            externalReference
+                        }
+                    }
+                }
+                user { id, email }
+            }
+        }
+    }
+}
+"""
+
 GET_PRODUCT_VARIANT = """
 query getProductVariant($sku: String){
     productVariant(sku: $sku) {
@@ -40,6 +67,18 @@ query getUser($email: String){
         id
         email
         externalReference
+    }
+}
+"""
+
+GET_WAREHOUSES = """
+query getWarehouses(
+    $limit: Int
+) {
+    warehouses(first: $limit) {
+        edges {
+            node { id, name }
+        }
     }
 }
 """
