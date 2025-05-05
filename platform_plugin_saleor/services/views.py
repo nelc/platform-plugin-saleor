@@ -28,7 +28,7 @@ def checkout(request):
     checkout_response = create_user_checkout(saleor_user=saleor_user, product_variants=[product_variant])
 
     # Hard coded value, this will be replace after defining the openedx storefront implementation.
-    response = redirect(f"http://local.overhang.io:18055/checkout?checkout={checkout_response['id']}")
+    response = redirect(f"{settings.SALEOR_STOREFRONT_HOST}/checkout?checkout={checkout_response['id']}")
 
     return response
 
